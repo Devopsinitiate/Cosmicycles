@@ -25,5 +25,6 @@ urlpatterns = [
     path('alerts/', views.alerts, name='alerts'),
     path('signup/', views.SignUpView.as_view(), name='signup'),
     path('verify-email/<str:token>/', views.verify_email, name='verify_email'),
+    path('verify-email/resend/', views.resend_verification, name='resend_verification'),
     path('htmx/cycles/<str:cycle_type>/', views.htmx_cycle_tab, name='htmx_cycle_tab'),
 ]

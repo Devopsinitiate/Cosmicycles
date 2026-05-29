@@ -6,6 +6,8 @@ from django.urls import reverse, reverse_lazy
 from django.views.generic import CreateView
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django.utils.decorators import method_decorator
+from django_ratelimit.decorators import ratelimit
 
 from datetime import datetime
 from django.views.decorators.http import require_POST
@@ -505,6 +507,7 @@ def alerts(request):
     transitions = get_upcoming_transitions(user_profile.birth_date, current_date, current_time)
     return render(request, 'cycles/alerts.html', {'transitions': transitions})
 
+@method_decorator(ratelimit(key='ip', rate='5/h', method='POST', block=True), name='post')
 class SignUpView(CreateView):
     form_class = SignUpForm
     success_url = reverse_lazy('login')
@@ -530,6 +533,21 @@ def verify_email(request, token):
     else:
         messages.info(request, 'Email was already verified.')
     return redirect('login')
+
+
+@ratelimit(key='ip', rate='3/h', method='POST', block=True)
+def resend_verification(request):
+    if request.method == 'POST':
+        email = request.POST.get('email', '')
+        try:
+            user = User.objects.get(email=email, userprofile__email_verified=False)
+            send_verification_email(request, user)
+            messages.success(request, 'Verification email sent! Check your inbox.')
+        except User.DoesNotExist:
+            messages.error(request, 'No unverified account found with that email.')
+        return redirect('login')
+    return render(request, 'registration/resend_verification.html')
+
 
 def bad_request(request, exception=None):
     return render(request, 'errors/400.html', status=400)
