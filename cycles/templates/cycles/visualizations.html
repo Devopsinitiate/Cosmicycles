@@ -1,0 +1,253 @@
+{% extends "base.html" %}
+{% load static %}
+{% load custom_filters %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <h1 class="text-3xl font-bold text-gray-800 mb-6">Cycle Visualizations</h1>
+
+    <div class="bg-white rounded-xl shadow-lg p-6 mb-8">
+        <h2 class="text-xl font-semibold text-gray-800 mb-4">Your Current Cycle Status</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            {% if daily_cycle_period %}
+            <div class="bg-blue-50 p-3 rounded-lg border border-blue-100">
+                <span class="text-xs font-medium text-blue-700">Daily</span>
+                <p class="text-sm text-gray-800 truncate">{{ daily_cycle_period.period_name }}</p>
+            </div>
+            {% endif %}
+            {% if yearly_cycle_period %}
+            <div class="bg-purple-50 p-3 rounded-lg border border-purple-100">
+                <span class="text-xs font-medium text-purple-700">Yearly</span>
+                <p class="text-sm text-gray-800 truncate">{{ yearly_cycle_period.period_name }}</p>
+            </div>
+            {% endif %}
+            {% if soul_cycle_period %}
+            <div class="bg-orange-50 p-3 rounded-lg border border-orange-100">
+                <span class="text-xs font-medium text-orange-700">Soul</span>
+                <p class="text-sm text-gray-800 truncate">{{ soul_cycle_period.period_name }}</p>
+            </div>
+            {% endif %}
+            {% if health_cycle_period %}
+            <div class="bg-red-50 p-3 rounded-lg border border-red-100">
+                <span class="text-xs font-medium text-red-700">Health</span>
+                <p class="text-sm text-gray-800 truncate">{{ health_cycle_period.period_name }}</p>
+            </div>
+            {% endif %}
+            {% if reincarnation_cycle_period %}
+            <div class="bg-indigo-50 p-3 rounded-lg border border-indigo-100">
+                <span class="text-xs font-medium text-indigo-700">Reincarnation</span>
+                <p class="text-sm text-gray-800 truncate">{{ reincarnation_cycle_period.period_name }}</p>
+            </div>
+            {% endif %}
+            {% if human_cycle_period %}
+            <div class="bg-pink-50 p-3 rounded-lg border border-pink-100">
+                <span class="text-xs font-medium text-pink-700">Human Life</span>
+                <p class="text-sm text-gray-800 truncate">{{ human_cycle_period.period_name }}{% if human_age %} (Age {{ human_age }}){% endif %}</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="bg-white rounded-xl shadow-lg p-6 mb-8">
+        <p class="text-gray-700 mb-4">Visualize your cycle data here. Select a cycle type to see its periods represented graphically.</p>
+        
+        <div class="mb-4">
+            <label for="cycleTypeSelect" class="block text-sm font-medium text-gray-700">Select Cycle Type:</label>
+            <select id="cycleTypeSelect" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md">
+                <option value="daily">Daily Cycle</option>
+                <option value="yearly">Yearly Cycle</option>
+                <option value="business">Business Cycle</option>
+                <option value="soul">Soul Cycle</option>
+                <option value="health">Health Cycle</option>
+                <option value="reincarnation">Reincarnation Cycle</option>
+                <option value="human">Human Life Cycle</option>
+            </select>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div class="lg:col-span-2 relative h-96">
+                <canvas id="cycleChart"></canvas>
+            </div>
+            <div class="relative h-64">
+                <canvas id="progressChart"></canvas>
+            </div>
+        </div>
+
+        <div id="chartDetails" class="mt-8">
+            <!-- Details about the selected cycle and its periods will be displayed here -->
+        </div>
+    </div>
+</div>
+
+<script>
+    let cycleChart;
+    let progressChart;
+
+    document.addEventListener('DOMContentLoaded', function() {
+        document.getElementById('cycleTypeSelect').addEventListener('change', (e) => {
+            fetchAndRenderChart(e.target.value);
+        });
+        fetchAndRenderChart('daily');
+    });
+
+    async function fetchAndRenderChart(cycleType) {
+        try {
+            const response = await fetch(`/api/cycles/${cycleType}/`);
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+            const data = await response.json();
+            renderChart(cycleType, data.period_details);
+            renderProgressChart(cycleType, data.period_details);
+            displayChartDetails(cycleType, data.period_details);
+        } catch (error) {
+            console.error('Error fetching chart data:', error);
+            document.getElementById('chartDetails').innerHTML = `<p class="text-red-500">Error loading ${cycleType} chart data.</p>`;
+            if (cycleChart) cycleChart.destroy();
+        }
+    }
+
+    function renderChart(cycleType, periods) {
+        const ctx = document.getElementById('cycleChart').getContext('2d');
+        if (cycleChart) cycleChart.destroy();
+
+        const colorMap = {
+            'blue': 'rgba(59, 130, 246, 0.6)', 'green': 'rgba(34, 197, 94, 0.6)',
+            'yellow': 'rgba(234, 179, 8, 0.6)', 'orange': 'rgba(249, 115, 22, 0.6)',
+            'purple': 'rgba(168, 85, 247, 0.6)', 'indigo': 'rgba(99, 102, 241, 0.6)',
+            'red': 'rgba(239, 68, 68, 0.6)', 'gray': 'rgba(107, 114, 128, 0.6)',
+            'pink': 'rgba(236, 72, 153, 0.6)',
+        };
+
+        cycleChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: periods.map(p => p.period_name),
+                datasets: [{
+                    label: `Duration of ${cycleType} Periods`,
+                    data: periods.map(p => p.end_value - p.start_value),
+                    backgroundColor: periods.map(p => colorMap[p.color] || 'rgba(0, 0, 0, 0.6)'),
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: { beginAtZero: true, title: { display: true, text: cycleType === 'daily' ? 'Duration (minutes)' : 'Duration (days)' } }
+                },
+                plugins: {
+                    tooltip: {
+                        callbacks: {
+                            label: (ctx) => `${ctx.dataset.label}: ${ctx.parsed.y} ${cycleType === 'daily' ? 'minutes' : 'days'}`
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    function renderProgressChart(cycleType, periods) {
+        const ctx = document.getElementById('progressChart').getContext('2d');
+        if (progressChart) progressChart.destroy();
+
+        const totalDuration = periods.reduce((sum, p) => sum + (p.end_value - p.start_value), 0);
+        const now = new Date();
+        let currentProgress = 0;
+
+        if (cycleType === 'daily') {
+            const curMin = now.getHours() * 60 + now.getMinutes();
+            for (const p of periods) {
+                if (p.start_value <= curMin && curMin <= p.end_value) {
+                    currentProgress = ((curMin - p.start_value) / (p.end_value - p.start_value)) * 100;
+                    break;
+                }
+            }
+        } else if (cycleType === 'soul') {
+            const curMMDD = (now.getMonth() + 1) * 100 + now.getDate();
+            for (const p of periods) {
+                let inPeriod = false;
+                if (p.start_value <= p.end_value) inPeriod = curMMDD >= p.start_value && curMMDD <= p.end_value;
+                else inPeriod = curMMDD >= p.start_value || curMMDD <= p.end_value;
+                if (inPeriod) {
+                    let periodStart = new Date(2000, Math.floor(p.start_value / 100) - 1, p.start_value % 100);
+                    let periodEnd = new Date(2000, Math.floor(p.end_value / 100) - 1, p.end_value % 100);
+                    if (periodEnd < periodStart) periodEnd.setFullYear(periodEnd.getFullYear() + 1);
+                    const nowRef = new Date(2000, now.getMonth(), now.getDate());
+                    if (nowRef < periodStart) periodStart.setFullYear(periodStart.getFullYear() - 1);
+                    const total = (periodEnd - periodStart) / (1000 * 60 * 60 * 24);
+                    const elapsed = (nowRef - periodStart) / (1000 * 60 * 60 * 24);
+                    currentProgress = (elapsed / total) * 100;
+                    break;
+                }
+            }
+        } else {
+            currentProgress = 35;
+        }
+
+        currentProgress = Math.max(0, Math.min(100, currentProgress));
+
+        progressChart = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Progress', 'Remaining'],
+                datasets: [{
+                    data: [currentProgress, 100 - currentProgress],
+                    backgroundColor: ['#3b82f6', '#e5e7eb'],
+                    borderWidth: 0,
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '75%',
+                plugins: {
+                    legend: { display: false },
+                    tooltip: { enabled: false },
+                },
+            },
+            plugins: [{
+                id: 'centerText',
+                afterDraw(chart) {
+                    const { width, height, ctx } = chart;
+                    ctx.save();
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    ctx.font = 'bold 24px sans-serif';
+                    ctx.fillStyle = '#374151';
+                    ctx.fillText(`${Math.round(currentProgress)}%`, width / 2, height / 2 - 8);
+                    ctx.font = '12px sans-serif';
+                    ctx.fillStyle = '#9ca3af';
+                    ctx.fillText('progress', width / 2, height / 2 + 18);
+                    ctx.restore();
+                }
+            }]
+        });
+    }
+
+    function displayChartDetails(cycleType, periods) {
+        const cd = document.getElementById('chartDetails');
+        if (!periods.length) { cd.innerHTML = '<p class="text-gray-500">No data available.</p>'; return; }
+        let html = `<h3 class="text-xl font-medium text-gray-800 mb-4">Details for ${cycleType.charAt(0).toUpperCase() + cycleType.slice(1)} Cycle:</h3><div class="grid grid-cols-1 md:grid-cols-2 gap-4">`;
+        periods.forEach(p => {
+            let range = `${p.start_value} - ${p.end_value}`;
+            if (cycleType === 'daily') range = `${formatTime(p.start_value)} - ${formatTime(p.end_value)}`;
+            else if (cycleType === 'soul') range = `${formatMD(p.start_value)} - ${formatMD(p.end_value)}`;
+            html += `<div class="bg-${p.color || 'gray'}-50 p-4 rounded-lg border border-${p.color || 'gray'}-100">
+                <h4 class="font-medium text-${p.color || 'gray'}-800 mb-1">${p.period_name}</h4>
+                <p class="text-sm text-gray-600 mb-2">${range}</p>
+                <p class="text-xs text-gray-700 mb-3">${p.description}</p>
+            </div>`;
+        });
+        cd.innerHTML = html + '</div>';
+    }
+
+    function formatTime(m) {
+        const h = Math.floor(m / 60), min = m % 60;
+        return `${h % 12 || 12}:${min < 10 ? '0' + min : min} ${h >= 12 ? 'PM' : 'AM'}`;
+    }
+
+    function formatMD(v) {
+        const d = new Date(2000, Math.floor(v / 100) - 1, v % 100);
+        return d.toLocaleDateString(undefined, { month: 'long', day: 'numeric' });
+    }
+</script>
+{% endblock content %}

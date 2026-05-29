@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <h1 class="text-3xl font-bold text-gray-800 mb-6">Cycle Journal</h1>
+
+    <div class="bg-white rounded-xl shadow-lg p-6 mb-8">
+        <h2 class="text-xl font-semibold text-gray-800 mb-4">New Entry</h2>
+        {% if period_prompt %}
+        <div class="bg-purple-50 border border-purple-200 rounded-lg p-4 mb-4">
+            <p class="text-sm text-purple-800">
+                <i class="fas fa-lightbulb mr-1"></i>
+                <strong>{{ current_period.period_name }} Prompt:</strong> {{ period_prompt }}
+            </p>
+        </div>
+        {% endif %}
+        <form method="post" action="{% url 'journal_create' %}">
+            {% csrf_token %}
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 mb-1">{{ period_prompt|default:"How was your day?" }}</label>
+                {{ form.content }}
+            </div>
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 mb-1">Mood</label>
+                {{ form.mood }}
+            </div>
+            <button type="submit" class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition">
+                <i class="fas fa-save mr-2"></i>Save Entry
+            </button>
+        </form>
+    </div>
+
+    <div class="space-y-4">
+        {% for entry in entries %}
+        <div class="bg-white rounded-lg shadow-sm p-5 border border-gray-100">
+            <div class="flex justify-between items-start mb-2">
+                <div>
+                    <span class="text-sm text-gray-500">{{ entry.date }}</span>
+                    <span class="ml-3 text-lg">
+                        {% if entry.mood == 1 %}😞{% elif entry.mood == 2 %}😐{% elif entry.mood == 3 %}🙂{% elif entry.mood == 4 %}😊{% elif entry.mood == 5 %}🌟{% endif %}
+                    </span>
+                    {% if entry.cycle_period %}
+                    <span class="ml-2 text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
+                        {{ entry.cycle_period.period_name }}
+                    </span>
+                    {% endif %}
+                </div>
+                <form method="post" action="{% url 'journal_delete' entry.pk %}" onsubmit="return confirm('Delete this entry?')">
+                    {% csrf_token %}
+                    <button type="submit" class="text-red-500 hover:text-red-700 text-sm">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </form>
+            </div>
+            <p class="text-gray-700 whitespace-pre-wrap">{{ entry.content }}</p>
+        </div>
+        {% empty %}
+        <div class="text-center py-12 text-gray-500">
+            <i class="fas fa-book-open text-4xl mb-3"></i>
+            <p>No journal entries yet. Start tracking your daily activities!</p>
+        </div>
+        {% endfor %}
+    </div>
+
+    {% if entries.paginator.num_pages > 1 %}
+    <div class="flex justify-center mt-6 space-x-2">
+        {% if entries.has_previous %}
+        <a href="?page=1" class="px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm text-gray-700 hover:bg-gray-50">&laquo; First</a>
+        <a href="?page={{ entries.previous_page_number }}" class="px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm text-gray-700 hover:bg-gray-50">&lsaquo; Prev</a>
+        {% endif %}
+        <span class="px-3 py-2 text-sm text-gray-500">
+            Page {{ entries.number }} of {{ entries.paginator.num_pages }}
+        </span>
+        {% if entries.has_next %}
+        <a href="?page={{ entries.next_page_number }}" class="px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm text-gray-700 hover:bg-gray-50">Next &rsaquo;</a>
+        <a href="?page={{ entries.paginator.num_pages }}" class="px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm text-gray-700 hover:bg-gray-50">Last &raquo;</a>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

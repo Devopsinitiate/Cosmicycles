@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+{% load static %}
+{% load custom_filters %}
+{% load render_helpers %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <nav class="text-sm text-gray-500 mb-4">
+        <a href="{% url 'education' %}" class="hover:text-purple-600">Education</a>
+        <span class="mx-2">/</span>
+        <a href="{% url 'education_detail' period.cycle_template.cycle_type %}" class="hover:text-purple-600">{{ period.cycle_template.get_cycle_type_display }}</a>
+        <span class="mx-2">/</span>
+        <span class="text-gray-800">{{ period.period_name }}</span>
+    </nav>
+
+    <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+        <!-- Main Content -->
+        <div class="lg:col-span-3">
+            <div class="bg-white rounded-xl shadow-lg p-8 border-t-4" style="border-color: {{ period.color|color_hex:'500' }};">
+                <div class="flex items-center mb-4">
+                    <div class="p-3 rounded-lg mr-4" style="background-color: {{ period.color|color_hex:'100' }};">
+                        <i class="fas fa-book-open text-2xl" style="color: {{ period.color|color_hex:'800' }};"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-3xl font-bold text-gray-800">{{ period.period_name }}</h1>
+                        <p class="text-gray-500 mt-1">{{ period.cycle_template.get_cycle_type_display }}</p>
+                    </div>
+                </div>
+
+                <div class="mb-6">
+                    <h2 class="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-2">Period Range</h2>
+                    <p class="text-lg text-gray-700">
+                        {% if period.cycle_template.cycle_type == 'daily' %}{{ period.start_value|div:60|floatformat:0 }}:{% if period.start_value|mod:60 < 10 %}0{% endif %}{{ period.start_value|mod:60 }} - {{ period.end_value|div:60|floatformat:0 }}:{% if period.end_value|mod:60 < 10 %}0{% endif %}{{ period.end_value|mod:60 }}
+                        {% elif period.cycle_template.cycle_type == 'soul' %}{{ period.start_value|stringformat:"d"|slice:":2" }}/{{ period.start_value|stringformat:"d"|slice:"2:" }} - {{ period.end_value|stringformat:"d"|slice:":2" }}/{{ period.end_value|stringformat:"d"|slice:"2:" }}
+                        {% else %}{{ period.start_value }} - {{ period.end_value }}
+                        {% endif %}
+                    </p>
+                </div>
+
+                <div class="mb-6">
+                    <h2 class="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-2">Description</h2>
+                    <p class="text-gray-700 leading-relaxed">{{ period.description }}</p>
+                </div>
+
+                {% if period.lesson_content %}
+                <div class="mb-6">
+                    <h2 class="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-2">Deep Dive</h2>
+                    <div class="bg-gray-50 rounded-lg p-6 border border-gray-200">
+                        <p class="text-gray-700 leading-relaxed">{{ period.lesson_content }}</p>
+                    </div>
+                </div>
+                {% endif %}
+
+                <div class="mb-6">
+                    <h2 class="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-2">Recommendations</h2>
+                    <div class="p-4 rounded-lg" style="background-color: {{ period.color|color_hex:'100' }};">
+                        {% render_recommendations period.recommendations %}
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-4">
+                    <a href="{% url 'education_detail' period.cycle_template.cycle_type %}" class="text-purple-600 hover:text-purple-800 font-medium">
+                        <i class="fas fa-arrow-left mr-1"></i> Back to {{ period.cycle_template.get_cycle_type_display }}
+                    </a>
+                    <a href="{% url 'education_quiz' period.id %}" class="bg-purple-600 hover:bg-purple-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition">
+                        <i class="fas fa-question-circle mr-1"></i> Take Quiz
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Glossary Sidebar -->
+        {% if glossary_terms %}
+        <div class="lg:col-span-1">
+            <div class="bg-white rounded-xl shadow-lg p-5 sticky top-24">
+                <h3 class="text-lg font-semibold text-gray-800 mb-4">Related Terms</h3>
+                <div class="space-y-4">
+                    {% for term in glossary_terms %}
+                    <div>
+                        <h4 class="text-sm font-medium text-purple-700">{{ term.term }}</h4>
+                        <p class="text-xs text-gray-600 mt-1">{{ term.definition|truncatewords:30 }}</p>
+                    </div>
+                    {% endfor %}
+                </div>
+                <div class="mt-6 pt-4 border-t border-gray-100">
+                    <a href="{% url 'education' %}" class="text-sm text-purple-600 hover:text-purple-800">
+                        <i class="fas fa-arrow-left mr-1"></i> All Cycles
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock content %}

@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+{% load static %}
+{% load custom_filters %}
+{% load render_helpers %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <h1 class="text-3xl font-bold text-gray-800 mb-2">Educational Resources</h1>
+    <p class="text-gray-600 mb-8">Deepen your understanding of the cosmic cycles that shape your life, based on "Self-Mastery and Fate with the Cycles of Life" by H. Spencer Lewis.</p>
+
+    <!-- Quick Navigation -->
+    <div class="bg-white rounded-xl shadow-lg p-6 mb-8">
+        <h2 class="text-xl font-semibold text-gray-800 mb-4">Jump to a Cycle</h2>
+        <div class="flex flex-wrap gap-3">
+            {% for item in cycles_data %}
+            <a href="#cycle-{{ item.template.cycle_type }}" class="bg-gray-100 hover:bg-purple-100 text-gray-700 hover:text-purple-700 px-4 py-2 rounded-lg text-sm font-medium transition">
+                {{ item.template.get_cycle_type_display }}
+                {% if item.current_period %}<span class="text-purple-500 ml-1">●</span>{% endif %}
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Cycle Sections -->
+    {% for item in cycles_data %}
+    <div id="cycle-{{ item.template.cycle_type }}" class="bg-white rounded-xl shadow-lg p-6 mb-8 scroll-mt-20">
+        <div class="flex items-center justify-between mb-4">
+            <div>
+                <div class="flex items-center gap-3">
+                    <h2 class="text-2xl font-bold text-gray-800">{{ item.template.get_cycle_type_display }}</h2>
+                    <a href="{% url 'education_detail' item.template.cycle_type %}" class="text-xs text-purple-600 hover:text-purple-800 font-medium">
+                        View All <i class="fas fa-arrow-right ml-1"></i>
+                    </a>
+                </div>
+                {% if item.template.description %}
+                <p class="text-gray-600 mt-1">{{ item.template.description }}</p>
+                {% endif %}
+            </div>
+            {% if item.current_period %}
+            <span class="bg-purple-100 text-purple-700 text-sm font-medium px-3 py-1 rounded-full whitespace-nowrap">
+                Current: {{ item.current_period }}
+            </span>
+            {% endif %}
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {% for period in item.periods %}
+            <div class="rounded-lg p-4 border {% if period.period_name == item.current_period %}ring-2 ring-purple-400{% endif %}" style="background-color: {{ period.color|color_hex:'50' }}; border-color: {{ period.color|color_hex:'100' }};">
+                <div class="flex items-start justify-between mb-1">
+                    <h4 class="font-medium" style="color: {{ period.color|color_hex:'800' }};">{{ period.period_name }}</h4>
+                    <a href="{% url 'education_period_detail' item.template.cycle_type period.id %}" class="text-xs text-purple-600 hover:text-purple-800 font-medium whitespace-nowrap ml-2">
+                        Deep Dive <i class="fas fa-arrow-right ml-1"></i>
+                    </a>
+                </div>
+                <p class="text-sm text-gray-600 mb-2">
+                    {% if item.template.cycle_type == 'daily' %}{{ period.start_value|div:60|floatformat:0 }}:{% if period.start_value|mod:60 < 10 %}0{% endif %}{{ period.start_value|mod:60 }} - {{ period.end_value|div:60|floatformat:0 }}:{% if period.end_value|mod:60 < 10 %}0{% endif %}{{ period.end_value|mod:60 }}
+                    {% elif item.template.cycle_type == 'soul' %}{{ period.start_value|stringformat:"d"|slice:":2" }}/{{ period.start_value|stringformat:"d"|slice:"2:" }} - {{ period.end_value|stringformat:"d"|slice:":2" }}/{{ period.end_value|stringformat:"d"|slice:"2:" }}
+                    {% else %}{{ period.start_value }} - {{ period.end_value }}
+                    {% endif %}
+                </p>
+                <p class="text-sm text-gray-700 mb-3">{{ period.description|truncatewords:30 }}</p>
+                <div class="p-3 rounded text-sm" style="background-color: {{ period.color|color_hex:'100' }};">
+                    <h5 class="text-xs font-medium mb-1" style="color: {{ period.color|color_hex:'800' }};">Recommended:</h5>
+                    {% render_recommendations period.recommendations %}
+                </div>
+            </div>
+            {% empty %}
+            <p class="text-gray-500 col-span-2">Period details are being developed for this cycle.</p>
+            {% endfor %}
+        </div>
+    </div>
+    {% endfor %}
+
+    <!-- Glossary Section -->
+    {% if glossary_terms %}
+    <div class="bg-white rounded-xl shadow-lg p-6 mb-8">
+        <h2 class="text-2xl font-bold text-gray-800 mb-6">Glossary of Terms</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {% for term in glossary_terms %}
+            <div>
+                <h3 class="text-sm font-semibold text-purple-700">{{ term.term }}</h3>
+                <p class="text-sm text-gray-600 mt-1">{{ term.definition }}</p>
+                {% if term.related_cycle_type %}
+                <span class="text-xs text-gray-400 mt-1 inline-block">
+                    Related: <a href="{% url 'education_detail' term.related_cycle_type %}" class="text-purple-500 hover:underline">{{ term.get_related_cycle_type_display }}</a>
+                </span>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock content %}

@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Verify your email</title>
+</head>
+<body style="background:#f3f4f6;font-family:system-ui,sans-serif;padding:24px;">
+    <table align="center" style="max-width:480px;width:100%;background:white;border-radius:12px;padding:24px;">
+        <tr><td style="text-align:center;padding-bottom:24px;">
+            <h1 style="color:#7c3aed;margin:0;">Cycles of Life Mastery</h1>
+        </td></tr>
+        <tr><td>
+            <p style="color:#374151;font-size:16px;line-height:1.5;">Hi <strong>{{ user.username }}</strong>,</p>
+            <p style="color:#374151;font-size:16px;line-height:1.5;">Thanks for signing up! Please verify your email address by clicking the button below:</p>
+            <div style="text-align:center;margin:24px 0;">
+                <a href="{{ verify_url }}" style="display:inline-block;background:#7c3aed;color:white;padding:12px 32px;border-radius:8px;text-decoration:none;font-weight:bold;font-size:16px;">Verify Email</a>
+            </div>
+            <p style="color:#6b7280;font-size:14px;">If the button doesn't work, copy and paste this link into your browser:</p>
+            <p style="color:#6b7280;font-size:12px;word-break:break-all;">{{ verify_url }}</p>
+        </td></tr>
+        <tr><td style="padding-top:24px;border-top:1px solid #e5e7eb;text-align:center;color:#9ca3af;font-size:12px;">
+            <p>Cycles of Life Mastery</p>
+        </td></tr>
+    </table>
+</body>
+</html>

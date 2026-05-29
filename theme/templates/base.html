@@ -1,0 +1,105 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cycles of Life Mastery</title>
+    <meta name="csrf-token" content="{{ csrf_token }}">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+          crossorigin="anonymous" referrerpolicy="no-referrer">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"
+            crossorigin="anonymous"></script>
+    <script src="https://unpkg.com/htmx.org@2.0.4"
+            crossorigin="anonymous"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            document.body.addEventListener('htmx:configRequest', (e) => {
+                e.detail.headers['X-CSRFToken'] = document.querySelector('meta[name="csrf-token"]').content;
+            });
+        });
+    </script>
+    <style>
+        .cycle-card { transition: all 0.3s ease; }
+        .cycle-card:hover { transform: translateY(-5px); box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1); }
+        .active-cycle { border-left: 6px solid #3b82f6; }
+        .progress-bar { height: 6px; transition: width 0.5s ease; }
+        .htmx-indicator { opacity: 0; transition: opacity 0.3s ease; }
+        .htmx-request .htmx-indicator { opacity: 1; }
+        .htmx-request.htmx-indicator { opacity: 1; }
+        .skip-link {
+            position: absolute;
+            left: -9999px;
+            z-index: 999;
+            padding: 1em;
+            background: #1e293b;
+            color: white;
+            text-decoration: none;
+        }
+        .skip-link:focus {
+            left: 0;
+            top: 0;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen font-sans">
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+    <nav class="bg-gray-800" aria-label="Main navigation">
+        <div class="container mx-auto px-4">
+            <div class="flex justify-between items-center h-16">
+                <a href="{% url 'home' %}" class="text-white text-xl font-bold">Cycles of Life Mastery</a>
+                <button id="mobile-menu-button"
+                        class="text-gray-300 hover:text-white md:hidden"
+                        aria-expanded="false"
+                        aria-controls="mobile-menu"
+                        aria-label="Toggle navigation menu">
+                    <i class="fas fa-bars text-2xl"></i>
+                </button>
+                <div class="hidden md:flex space-x-4">
+                    {% if user.is_authenticated %}
+                        <a href="{% url 'dashboard' %}" class="text-gray-300 hover:text-white text-sm">Dashboard</a>
+                        <a href="{% url 'journal_list' %}" class="text-gray-300 hover:text-white text-sm">Journal</a>
+                        <a href="{% url 'visualizations' %}" class="text-gray-300 hover:text-white text-sm">Analytics</a>
+                        <a href="{% url 'alerts' %}" class="text-gray-300 hover:text-white text-sm">Alerts</a>
+                        <a href="{% url 'edit_profile' %}" class="text-gray-300 hover:text-white text-sm">Profile</a>
+                        <a href="{% url 'business_list' %}" class="text-gray-300 hover:text-white text-sm">Businesses</a>
+                        <a href="{% url 'education' %}" class="text-gray-300 hover:text-white text-sm">Education</a>
+                        <a href="{% url 'generate_report_pdf' %}" class="text-gray-300 hover:text-white text-sm">PDF Report</a>
+                        <a href="{% url 'logout' %}" class="text-gray-300 hover:text-white text-sm">Logout</a>
+                    {% else %}
+                        <a href="{% url 'home' %}" class="text-gray-300 hover:text-white text-sm">Home</a>
+                        <a href="{% url 'about' %}" class="text-gray-300 hover:text-white text-sm">About</a>
+                        <a href="{% url 'login' %}" class="text-gray-300 hover:text-white text-sm">Login</a>
+                        <a href="{% url 'signup' %}" class="text-gray-300 hover:text-white text-sm">Sign Up</a>
+                    {% endif %}
+                </div>
+            </div>
+            <div id="mobile-menu" class="hidden md:hidden pb-4" role="menu">
+                {% if user.is_authenticated %}
+                    <a href="{% url 'dashboard' %}" class="block text-gray-300 hover:text-white py-2" role="menuitem">Dashboard</a>
+                    <a href="{% url 'journal_list' %}" class="block text-gray-300 hover:text-white py-2" role="menuitem">Journal</a>
+                    <a href="{% url 'visualizations' %}" class="block text-gray-300 hover:text-white py-2" role="menuitem">Analytics</a>
+                    <a href="{% url 'alerts' %}" class="block text-gray-300 hover:text-white py-2" role="menuitem">Alerts</a>
+                    <a href="{% url 'edit_profile' %}" class="block text-gray-300 hover:text-white py-2" role="menuitem">Profile</a>
+                    <a href="{% url 'business_list' %}" class="block text-gray-300 hover:text-white py-2" role="menuitem">Businesses</a>
+                    <a href="{% url 'education' %}" class="block text-gray-300 hover:text-white py-2" role="menuitem">Education</a>
+                    <a href="{% url 'generate_report_pdf' %}" class="block text-gray-300 hover:text-white py-2" role="menuitem">PDF Report</a>
+                    <a href="{% url 'logout' %}" class="block text-gray-300 hover:text-white py-2" role="menuitem">Logout</a>
+                {% else %}
+                    <a href="{% url 'home' %}" class="block text-gray-300 hover:text-white py-2" role="menuitem">Home</a>
+                    <a href="{% url 'about' %}" class="block text-gray-300 hover:text-white py-2" role="menuitem">About</a>
+                    <a href="{% url 'login' %}" class="block text-gray-300 hover:text-white py-2" role="menuitem">Login</a>
+                    <a href="{% url 'signup' %}" class="block text-gray-300 hover:text-white py-2" role="menuitem">Sign Up</a>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+    <script src="{% static 'cycles/js/main.js' %}"></script>
+    <main id="main-content">
+        {% block content %}
+        {% endblock content %}
+    </main>
+    {% include 'includes/footer.html' %}
+</body>
+</html>
