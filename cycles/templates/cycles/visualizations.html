@@ -2,79 +2,90 @@
 {% load static %}
 {% load custom_filters %}
 
+{% block extra_head %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js" crossorigin="anonymous"></script>
+{% endblock extra_head %}
+
 {% block content %}
-<div class="container mx-auto px-4 py-8">
-    <h1 class="text-3xl font-bold text-gray-800 mb-6">Cycle Visualizations</h1>
-
-    <div class="bg-white rounded-xl shadow-lg p-6 mb-8">
-        <h2 class="text-xl font-semibold text-gray-800 mb-4">Your Current Cycle Status</h2>
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            {% if daily_cycle_period %}
-            <div class="bg-blue-50 p-3 rounded-lg border border-blue-100">
-                <span class="text-xs font-medium text-blue-700">Daily</span>
-                <p class="text-sm text-gray-800 truncate">{{ daily_cycle_period.period_name }}</p>
+<div class="relative overflow-hidden">
+    <div class="absolute inset-0 bg-gradient-to-b from-purple-900/10 via-transparent to-cyan-900/10 pointer-events-none"></div>
+    <div class="max-w-7xl mx-auto px-4 py-8 relative z-10">
+        <div class="text-center mb-10 animate-slide-up">
+            <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-br from-purple-500 to-cyan-500 mb-4 shadow-lg shadow-purple-500/30">
+                <i class="fas fa-chart-line text-white text-2xl"></i>
             </div>
-            {% endif %}
-            {% if yearly_cycle_period %}
-            <div class="bg-purple-50 p-3 rounded-lg border border-purple-100">
-                <span class="text-xs font-medium text-purple-700">Yearly</span>
-                <p class="text-sm text-gray-800 truncate">{{ yearly_cycle_period.period_name }}</p>
-            </div>
-            {% endif %}
-            {% if soul_cycle_period %}
-            <div class="bg-orange-50 p-3 rounded-lg border border-orange-100">
-                <span class="text-xs font-medium text-orange-700">Soul</span>
-                <p class="text-sm text-gray-800 truncate">{{ soul_cycle_period.period_name }}</p>
-            </div>
-            {% endif %}
-            {% if health_cycle_period %}
-            <div class="bg-red-50 p-3 rounded-lg border border-red-100">
-                <span class="text-xs font-medium text-red-700">Health</span>
-                <p class="text-sm text-gray-800 truncate">{{ health_cycle_period.period_name }}</p>
-            </div>
-            {% endif %}
-            {% if reincarnation_cycle_period %}
-            <div class="bg-indigo-50 p-3 rounded-lg border border-indigo-100">
-                <span class="text-xs font-medium text-indigo-700">Reincarnation</span>
-                <p class="text-sm text-gray-800 truncate">{{ reincarnation_cycle_period.period_name }}</p>
-            </div>
-            {% endif %}
-            {% if human_cycle_period %}
-            <div class="bg-pink-50 p-3 rounded-lg border border-pink-100">
-                <span class="text-xs font-medium text-pink-700">Human Life</span>
-                <p class="text-sm text-gray-800 truncate">{{ human_cycle_period.period_name }}{% if human_age %} (Age {{ human_age }}){% endif %}</p>
-            </div>
-            {% endif %}
-        </div>
-    </div>
-
-    <div class="bg-white rounded-xl shadow-lg p-6 mb-8">
-        <p class="text-gray-700 mb-4">Visualize your cycle data here. Select a cycle type to see its periods represented graphically.</p>
-        
-        <div class="mb-4">
-            <label for="cycleTypeSelect" class="block text-sm font-medium text-gray-700">Select Cycle Type:</label>
-            <select id="cycleTypeSelect" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md">
-                <option value="daily">Daily Cycle</option>
-                <option value="yearly">Yearly Cycle</option>
-                <option value="business">Business Cycle</option>
-                <option value="soul">Soul Cycle</option>
-                <option value="health">Health Cycle</option>
-                <option value="reincarnation">Reincarnation Cycle</option>
-                <option value="human">Human Life Cycle</option>
-            </select>
+            <h1 class="text-4xl font-bold gradient-text mb-2">Cycle Visualizations</h1>
         </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div class="lg:col-span-2 relative h-96">
-                <canvas id="cycleChart"></canvas>
-            </div>
-            <div class="relative h-64">
-                <canvas id="progressChart"></canvas>
+        <div class="glass rounded-2xl p-6 md:p-8 glow-border mb-8 animate-slide-up">
+            <h2 class="text-xl font-bold gradient-text mb-4">Your Current Cycle Status</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                {% if daily_cycle_period %}
+                <div class="glass rounded-xl p-3 border-l-4" style="border-left-color: #7c3aed;">
+                    <span class="text-xs font-medium text-purple-400">Daily</span>
+                    <p class="text-sm text-gray-200 truncate">{{ daily_cycle_period.period_name }}</p>
+                </div>
+                {% endif %}
+                {% if yearly_cycle_period %}
+                <div class="glass rounded-xl p-3 border-l-4" style="border-left-color: #8b5cf6;">
+                    <span class="text-xs font-medium text-purple-400">Yearly</span>
+                    <p class="text-sm text-gray-200 truncate">{{ yearly_cycle_period.period_name }}</p>
+                </div>
+                {% endif %}
+                {% if soul_cycle_period %}
+                <div class="glass rounded-xl p-3 border-l-4" style="border-left-color: #f97316;">
+                    <span class="text-xs font-medium text-orange-400">Soul</span>
+                    <p class="text-sm text-gray-200 truncate">{{ soul_cycle_period.period_name }}</p>
+                </div>
+                {% endif %}
+                {% if health_cycle_period %}
+                <div class="glass rounded-xl p-3 border-l-4" style="border-left-color: #ef4444;">
+                    <span class="text-xs font-medium text-red-400">Health</span>
+                    <p class="text-sm text-gray-200 truncate">{{ health_cycle_period.period_name }}</p>
+                </div>
+                {% endif %}
+                {% if reincarnation_cycle_period %}
+                <div class="glass rounded-xl p-3 border-l-4" style="border-left-color: #6366f1;">
+                    <span class="text-xs font-medium text-indigo-400">Reincarnation</span>
+                    <p class="text-sm text-gray-200 truncate">{{ reincarnation_cycle_period.period_name }}</p>
+                </div>
+                {% endif %}
+                {% if human_cycle_period %}
+                <div class="glass rounded-xl p-3 border-l-4" style="border-left-color: #ec4899;">
+                    <span class="text-xs font-medium text-pink-400">Human Life</span>
+                    <p class="text-sm text-gray-200 truncate">{{ human_cycle_period.period_name }}{% if human_age %} (Age {{ human_age }}){% endif %}</p>
+                </div>
+                {% endif %}
             </div>
         </div>
 
-        <div id="chartDetails" class="mt-8">
-            <!-- Details about the selected cycle and its periods will be displayed here -->
+        <div class="glass rounded-2xl p-6 md:p-8 glow-border mb-8 animate-slide-up">
+            <p class="text-gray-400 mb-4">Visualize your cycle data here. Select a cycle type to see its periods represented graphically.</p>
+
+            <div class="mb-4">
+                <label for="cycleTypeSelect" class="block text-sm font-medium text-gray-300 mb-1">Select Cycle Type:</label>
+                <select id="cycleTypeSelect" class="w-full glass rounded-xl px-4 py-2.5 text-gray-300 border border-white/10 focus:outline-none focus:border-purple-500/50">
+                    <option value="daily">Daily Cycle</option>
+                    <option value="yearly">Yearly Cycle</option>
+                    <option value="business">Business Cycle</option>
+                    <option value="soul">Soul Cycle</option>
+                    <option value="health">Health Cycle</option>
+                    <option value="reincarnation">Reincarnation Cycle</option>
+                    <option value="human">Human Life Cycle</option>
+                </select>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div class="lg:col-span-2 relative h-96">
+                    <canvas id="cycleChart"></canvas>
+                </div>
+                <div class="relative h-64">
+                    <canvas id="progressChart"></canvas>
+                </div>
+            </div>
+
+            <div id="chartDetails" class="mt-8">
+            </div>
         </div>
     </div>
 </div>
@@ -100,7 +111,7 @@
             displayChartDetails(cycleType, data.period_details);
         } catch (error) {
             console.error('Error fetching chart data:', error);
-            document.getElementById('chartDetails').innerHTML = `<p class="text-red-500">Error loading ${cycleType} chart data.</p>`;
+            document.getElementById('chartDetails').innerHTML = `<p class="text-red-400">Error loading ${cycleType} chart data.</p>`;
             if (cycleChart) cycleChart.destroy();
         }
     }
@@ -124,7 +135,7 @@
                 datasets: [{
                     label: `Duration of ${cycleType} Periods`,
                     data: periods.map(p => p.end_value - p.start_value),
-                    backgroundColor: periods.map(p => colorMap[p.color] || 'rgba(0, 0, 0, 0.6)'),
+                    backgroundColor: periods.map(p => colorMap[p.color] || 'rgba(168, 85, 247, 0.6)'),
                     borderWidth: 1
                 }]
             },
@@ -132,7 +143,7 @@
                 responsive: true,
                 maintainAspectRatio: false,
                 scales: {
-                    y: { beginAtZero: true, title: { display: true, text: cycleType === 'daily' ? 'Duration (minutes)' : 'Duration (days)' } }
+                    y: { beginAtZero: true, title: { display: true, color: '#9ca3af', text: cycleType === 'daily' ? 'Duration (minutes)' : 'Duration (days)' } }
                 },
                 plugins: {
                     tooltip: {
@@ -191,7 +202,7 @@
                 labels: ['Progress', 'Remaining'],
                 datasets: [{
                     data: [currentProgress, 100 - currentProgress],
-                    backgroundColor: ['#3b82f6', '#e5e7eb'],
+                    backgroundColor: ['#7c3aed', 'rgba(255,255,255,0.1)'],
                     borderWidth: 0,
                 }]
             },
@@ -211,10 +222,10 @@
                     ctx.save();
                     ctx.textAlign = 'center';
                     ctx.textBaseline = 'middle';
-                    ctx.font = 'bold 24px sans-serif';
-                    ctx.fillStyle = '#374151';
+                    ctx.font = 'bold 24px "Orbitron", sans-serif';
+                    ctx.fillStyle = '#e5e7eb';
                     ctx.fillText(`${Math.round(currentProgress)}%`, width / 2, height / 2 - 8);
-                    ctx.font = '12px sans-serif';
+                    ctx.font = '12px "Inter", sans-serif';
                     ctx.fillStyle = '#9ca3af';
                     ctx.fillText('progress', width / 2, height / 2 + 18);
                     ctx.restore();
@@ -226,15 +237,15 @@
     function displayChartDetails(cycleType, periods) {
         const cd = document.getElementById('chartDetails');
         if (!periods.length) { cd.innerHTML = '<p class="text-gray-500">No data available.</p>'; return; }
-        let html = `<h3 class="text-xl font-medium text-gray-800 mb-4">Details for ${cycleType.charAt(0).toUpperCase() + cycleType.slice(1)} Cycle:</h3><div class="grid grid-cols-1 md:grid-cols-2 gap-4">`;
+        let html = `<h3 class="text-xl font-medium text-gray-200 mb-4">Details for ${cycleType.charAt(0).toUpperCase() + cycleType.slice(1)} Cycle:</h3><div class="grid grid-cols-1 md:grid-cols-2 gap-4">`;
         periods.forEach(p => {
             let range = `${p.start_value} - ${p.end_value}`;
             if (cycleType === 'daily') range = `${formatTime(p.start_value)} - ${formatTime(p.end_value)}`;
             else if (cycleType === 'soul') range = `${formatMD(p.start_value)} - ${formatMD(p.end_value)}`;
-            html += `<div class="bg-${p.color || 'gray'}-50 p-4 rounded-lg border border-${p.color || 'gray'}-100">
-                <h4 class="font-medium text-${p.color || 'gray'}-800 mb-1">${p.period_name}</h4>
-                <p class="text-sm text-gray-600 mb-2">${range}</p>
-                <p class="text-xs text-gray-700 mb-3">${p.description}</p>
+            html += `<div class="glass rounded-xl p-4">
+                <h4 class="font-medium text-white mb-1">${p.period_name}</h4>
+                <p class="text-sm text-gray-400 mb-2">${range}</p>
+                <p class="text-xs text-gray-500 mb-3">${p.description}</p>
             </div>`;
         });
         cd.innerHTML = html + '</div>';

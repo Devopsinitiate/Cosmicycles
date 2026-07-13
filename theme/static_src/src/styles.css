@@ -1,3 +1,36 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+
+@source "../../../cycles/templates";
+@source "../../../theme/templates";
+
+@theme {
+    --font-heading: "Orbitron", system-ui, sans-serif;
+    --font-sans: "Inter", system-ui, sans-serif;
+    --color-cosmic-dark: #07071a;
+    --color-cosmic-midnight: #0f0c29;
+    --color-cosmic-deep: #1a0a2e;
+    --color-cosmic-purple: #7c3aed;
+    --color-cosmic-cyan: #06b6d4;
+    --color-cosmic-gold: #f59e0b;
+}
+
+@keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-20px); }
+}
+@keyframes twinkle {
+    0%, 100% { opacity: 0.3; }
+    50% { opacity: 1; }
+}
+@keyframes pulseGlow {
+    0%, 100% { box-shadow: 0 0 20px rgba(168, 85, 247, 0.2); }
+    50% { box-shadow: 0 0 40px rgba(168, 85, 247, 0.4), 0 0 60px rgba(6, 182, 212, 0.2); }
+}
+@keyframes slideUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+@keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+}

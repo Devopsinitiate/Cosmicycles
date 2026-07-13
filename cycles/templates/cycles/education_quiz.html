@@ -2,86 +2,89 @@
 {% load static %}
 
 {% block content %}
-<div class="container mx-auto px-4 py-8">
-    <nav class="text-sm text-gray-500 mb-4">
-        <a href="{% url 'education' %}" class="hover:text-purple-600">Education</a>
-        <span class="mx-2">/</span>
-        <a href="{% url 'education_detail' period.cycle_template.cycle_type %}" class="hover:text-purple-600">{{ period.cycle_template.get_cycle_type_display }}</a>
-        <span class="mx-2">/</span>
-        <a href="{% url 'education_period_detail' period.cycle_template.cycle_type period.id %}" class="hover:text-purple-600">{{ period.period_name }}</a>
-        <span class="mx-2">/</span>
-        <span class="text-gray-800">Quiz</span>
-    </nav>
+<div class="relative overflow-hidden">
+    <div class="absolute inset-0 bg-gradient-to-b from-purple-900/10 via-transparent to-cyan-900/10 pointer-events-none"></div>
+    <div class="max-w-2xl mx-auto px-4 py-8 relative z-10">
+        <nav class="text-sm text-gray-500 mb-6">
+            <a href="{% url 'education' %}" class="hover:text-purple-400 transition-colors">Education</a>
+            <span class="mx-2">/</span>
+            <a href="{% url 'education_detail' period.cycle_template.cycle_type %}" class="hover:text-purple-400 transition-colors">{{ period.cycle_template.get_cycle_type_display }}</a>
+            <span class="mx-2">/</span>
+            <a href="{% url 'education_period_detail' period.cycle_template.cycle_type period.id %}" class="hover:text-purple-400 transition-colors">{{ period.period_name }}</a>
+            <span class="mx-2">/</span>
+            <span class="text-gray-300">Quiz</span>
+        </nav>
 
-    <div class="max-w-2xl mx-auto">
-        <div class="bg-white rounded-xl shadow-lg p-8">
-            <div class="flex items-center justify-between mb-6">
-                <h1 class="text-2xl font-bold text-gray-800">Knowledge Check</h1>
-                {% if progress.completed %}
-                <span class="bg-green-100 text-green-700 text-sm font-medium px-3 py-1 rounded-full">
-                    <i class="fas fa-check mr-1"></i> Completed
-                </span>
-                {% endif %}
-            </div>
-
-            <p class="text-sm text-gray-500 mb-6">
-                Test your understanding of <strong>{{ period.cycle_template.get_cycle_type_display }}</strong> —
-                <strong>{{ period.period_name }}</strong>
-            </p>
-
-            {% if question %}
-            <div id="quiz-container">
-                <div class="mb-6">
-                    <h2 class="text-lg font-medium text-gray-800 mb-4">{{ question.question }}</h2>
-                    <div class="space-y-3" id="quiz-options">
-                        {% if question.option_a %}
-                        <label class="quiz-option block border border-gray-200 rounded-lg p-4 cursor-pointer hover:bg-purple-50 hover:border-purple-300 transition" data-option="A">
-                            <input type="radio" name="answer" value="A" class="mr-3" onchange="document.getElementById('submit-quiz').disabled = false;">
-                            <span class="font-medium text-gray-700">A.</span>
-                            <span class="text-gray-600">{{ question.option_a }}</span>
-                        </label>
-                        {% endif %}
-                        {% if question.option_b %}
-                        <label class="quiz-option block border border-gray-200 rounded-lg p-4 cursor-pointer hover:bg-purple-50 hover:border-purple-300 transition" data-option="B">
-                            <input type="radio" name="answer" value="B" class="mr-3" onchange="document.getElementById('submit-quiz').disabled = false;">
-                            <span class="font-medium text-gray-700">B.</span>
-                            <span class="text-gray-600">{{ question.option_b }}</span>
-                        </label>
-                        {% endif %}
-                        {% if question.option_c %}
-                        <label class="quiz-option block border border-gray-200 rounded-lg p-4 cursor-pointer hover:bg-purple-50 hover:border-purple-300 transition" data-option="C">
-                            <input type="radio" name="answer" value="C" class="mr-3" onchange="document.getElementById('submit-quiz').disabled = false;">
-                            <span class="font-medium text-gray-700">C.</span>
-                            <span class="text-gray-600">{{ question.option_c }}</span>
-                        </label>
-                        {% endif %}
-                        {% if question.option_d %}
-                        <label class="quiz-option block border border-gray-200 rounded-lg p-4 cursor-pointer hover:bg-purple-50 hover:border-purple-300 transition" data-option="D">
-                            <input type="radio" name="answer" value="D" class="mr-3" onchange="document.getElementById('submit-quiz').disabled = false;">
-                            <span class="font-medium text-gray-700">D.</span>
-                            <span class="text-gray-600">{{ question.option_d }}</span>
-                        </label>
-                        {% endif %}
-                    </div>
+        <div class="max-w-2xl mx-auto animate-slide-up">
+            <div class="glass rounded-2xl p-8 glow-border">
+                <div class="flex items-center justify-between mb-6">
+                    <h1 class="text-2xl font-bold gradient-text">Knowledge Check</h1>
+                    {% if progress.completed %}
+                    <span class="bg-green-500/20 text-green-300 text-sm font-medium px-3 py-1 rounded-full border border-green-500/30">
+                        <i class="fas fa-check mr-1"></i> Completed
+                    </span>
+                    {% endif %}
                 </div>
 
-                <button id="submit-quiz" disabled
-                        class="w-full bg-purple-600 hover:bg-purple-700 text-white font-medium py-3 px-6 rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed"
-                        onclick="submitQuiz({{ question.id }})">
-                    Submit Answer
-                </button>
+                <p class="text-sm text-gray-400 mb-6">
+                    Test your understanding of <strong class="text-purple-300">{{ period.cycle_template.get_cycle_type_display }}</strong> —
+                    <strong class="text-purple-300">{{ period.period_name }}</strong>
+                </p>
 
-                <div id="quiz-result" class="mt-6 hidden"></div>
+                {% if question %}
+                <div id="quiz-container">
+                    <div class="mb-6">
+                        <h2 class="text-lg font-medium text-gray-200 mb-4">{{ question.question }}</h2>
+                        <div class="space-y-3" id="quiz-options">
+                            {% if question.option_a %}
+                            <label class="quiz-option block glass rounded-xl p-4 cursor-pointer hover:border-purple-500/30 transition-all border border-white/10" data-option="A">
+                                <input type="radio" name="answer" value="A" class="mr-3 accent-purple-500" onchange="document.getElementById('submit-quiz').disabled = false;">
+                                <span class="font-medium text-gray-300">A.</span>
+                                <span class="text-gray-400">{{ question.option_a }}</span>
+                            </label>
+                            {% endif %}
+                            {% if question.option_b %}
+                            <label class="quiz-option block glass rounded-xl p-4 cursor-pointer hover:border-purple-500/30 transition-all border border-white/10" data-option="B">
+                                <input type="radio" name="answer" value="B" class="mr-3 accent-purple-500" onchange="document.getElementById('submit-quiz').disabled = false;">
+                                <span class="font-medium text-gray-300">B.</span>
+                                <span class="text-gray-400">{{ question.option_b }}</span>
+                            </label>
+                            {% endif %}
+                            {% if question.option_c %}
+                            <label class="quiz-option block glass rounded-xl p-4 cursor-pointer hover:border-purple-500/30 transition-all border border-white/10" data-option="C">
+                                <input type="radio" name="answer" value="C" class="mr-3 accent-purple-500" onchange="document.getElementById('submit-quiz').disabled = false;">
+                                <span class="font-medium text-gray-300">C.</span>
+                                <span class="text-gray-400">{{ question.option_c }}</span>
+                            </label>
+                            {% endif %}
+                            {% if question.option_d %}
+                            <label class="quiz-option block glass rounded-xl p-4 cursor-pointer hover:border-purple-500/30 transition-all border border-white/10" data-option="D">
+                                <input type="radio" name="answer" value="D" class="mr-3 accent-purple-500" onchange="document.getElementById('submit-quiz').disabled = false;">
+                                <span class="font-medium text-gray-300">D.</span>
+                                <span class="text-gray-400">{{ question.option_d }}</span>
+                            </label>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <button id="submit-quiz" disabled
+                            class="btn-cosmic disabled:opacity-50 disabled:cursor-not-allowed"
+                            onclick="submitQuiz({{ question.id }})">
+                        Submit Answer
+                    </button>
+
+                    <div id="quiz-result" class="mt-6 hidden"></div>
+                </div>
+                {% else %}
+                <div class="text-center py-8">
+                    <i class="fas fa-question-circle text-gray-500 text-5xl mb-4"></i>
+                    <p class="text-gray-500">No quiz questions available for this period yet.</p>
+                    <a href="{% url 'education_period_detail' period.cycle_template.cycle_type period.id %}" class="text-purple-400 hover:text-purple-300 font-medium mt-4 inline-block transition-colors">
+                        <i class="fas fa-arrow-left mr-1"></i> Back to period details
+                    </a>
+                </div>
+                {% endif %}
             </div>
-            {% else %}
-            <div class="text-center py-8">
-                <i class="fas fa-question-circle text-gray-300 text-5xl mb-4"></i>
-                <p class="text-gray-500">No quiz questions available for this period yet.</p>
-                <a href="{% url 'education_period_detail' period.cycle_template.cycle_type period.id %}" class="text-purple-600 hover:text-purple-800 font-medium mt-4 inline-block">
-                    <i class="fas fa-arrow-left mr-1"></i> Back to period details
-                </a>
-            </div>
-            {% endif %}
         </div>
     </div>
 </div>
@@ -108,7 +111,6 @@ function submitQuiz(questionId) {
         const container = document.getElementById('quiz-result');
         container.classList.remove('hidden');
 
-        // Disable all options
         document.querySelectorAll('.quiz-option').forEach(el => {
             el.style.cursor = 'default';
             el.querySelector('input').disabled = true;
@@ -117,22 +119,21 @@ function submitQuiz(questionId) {
 
         if (data.correct) {
             container.innerHTML = `
-                <div class="bg-green-50 border border-green-200 rounded-lg p-4">
-                    <h3 class="text-green-800 font-medium mb-1"><i class="fas fa-check-circle mr-1"></i> Correct!</h3>
-                    <p class="text-green-700 text-sm">${data.explanation}</p>
+                <div class="bg-green-500/10 border border-green-500/20 rounded-xl p-4">
+                    <h3 class="text-green-300 font-medium mb-1"><i class="fas fa-check-circle mr-1"></i> Correct!</h3>
+                    <p class="text-green-400 text-sm">${data.explanation}</p>
                 </div>
             `;
-            // Highlight correct option
-            document.querySelector(`.quiz-option[data-option="${data.correct_answer}"]`).classList.add('bg-green-50', 'border-green-300');
+            document.querySelector(`.quiz-option[data-option="${data.correct_answer}"]`).classList.add('bg-green-500/10', 'border-green-500/30');
         } else {
             container.innerHTML = `
-                <div class="bg-red-50 border border-red-200 rounded-lg p-4">
-                    <h3 class="text-red-800 font-medium mb-1"><i class="fas fa-times-circle mr-1"></i> Not quite.</h3>
-                    <p class="text-red-700 text-sm">The correct answer was <strong>${data.correct_answer}</strong>.</p>
-                    <p class="text-gray-700 text-sm mt-2">${data.explanation}</p>
+                <div class="bg-red-500/10 border border-red-500/20 rounded-xl p-4">
+                    <h3 class="text-red-300 font-medium mb-1"><i class="fas fa-times-circle mr-1"></i> Not quite.</h3>
+                    <p class="text-red-400 text-sm">The correct answer was <strong>${data.correct_answer}</strong>.</p>
+                    <p class="text-gray-300 text-sm mt-2">${data.explanation}</p>
                 </div>
             `;
-            document.querySelector(`.quiz-option[data-option="${data.correct_answer}"]`).classList.add('bg-green-50', 'border-green-300');
+            document.querySelector(`.quiz-option[data-option="${data.correct_answer}"]`).classList.add('bg-green-500/10', 'border-green-500/30');
         }
 
         container.scrollIntoView({ behavior: 'smooth' });

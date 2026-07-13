@@ -200,8 +200,9 @@ class UserCycleIntegrationTests(TestCase):
         resp = self.client.get('/')
         self.assertEqual(resp.status_code, 200)
         content = resp.content.decode('utf-8')
-        self.assertIn('Daily Cycle', content)
-        self.assertIn('Sign Up for Your Full Cosmic Cycles', content)
+        self.assertIn('Cosmic Cycles', content)
+        self.assertIn('All Daily Periods', content)
+        self.assertIn('Begin Your Cosmic Journey', content)
 
     def test_api_returns_404_for_invalid_cycle_type(self):
         request = self.factory.get('/api/cycles/invalid/')
