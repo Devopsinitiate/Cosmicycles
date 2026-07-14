@@ -251,6 +251,24 @@
             meteor.style.left = '80%';
             container.appendChild(meteor);
 
+            var menuBtn = document.getElementById('mobile-menu-button');
+            var mobileMenu = document.getElementById('mobile-menu');
+            if (menuBtn && mobileMenu) {
+                menuBtn.addEventListener('click', function() {
+                    var isHidden = mobileMenu.classList.contains('hidden');
+                    mobileMenu.classList.toggle('hidden');
+                    menuBtn.setAttribute('aria-expanded', isHidden);
+                    document.body.style.overflow = isHidden ? 'hidden' : '';
+                });
+                document.addEventListener('click', function(e) {
+                    if (!mobileMenu.contains(e.target) && e.target !== menuBtn && !menuBtn.contains(e.target)) {
+                        mobileMenu.classList.add('hidden');
+                        menuBtn.setAttribute('aria-expanded', 'false');
+                        document.body.style.overflow = '';
+                    }
+                });
+            }
+
             document.body.addEventListener('htmx:beforeRequest', function(evt) {
                 var indicator = htmx.closest(evt.detail.elt, '.htmx-indicator');
                 if (indicator) {
